@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="Checklist para tu viaje - No olvides nada">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Checklist Viaje">
+    <title>Checklist de Viaje</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
+    <link rel="apple-touch-icon" href="icon-192.svg">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✈️ Checklist de viaje</h1>
+            <div class="header-actions">
+                <button id="menuBtn" class="btn-primary">☰ Menú</button>
+                <div class="progress-container">
+                    <span id="progress">0/0</span>
+                </div>
+            </div>
+        </header>
+
+        <main id="checklistContainer">
+            <!-- Las categorías se generarán dinámicamente con JavaScript -->
+        </main>
+
+        <button id="addCategoryBtn" class="fab-btn" title="Agregar categoría">
+            ➕
+        </button>
+
+        <button id="installBtn" class="install-btn" style="display: none;">
+            📲 Instalar App
+        </button>
+    </div>
+
+    <!-- Modal de Menú -->
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Opciones</h2>
+                <button class="modal-close" data-modal="menuModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <button class="menu-option" id="resetAllBtn">
+                    🔄 Resetear Checks
+                </button>
+                <button class="menu-option" id="exportBtn">
+                    📤 Exportar Lista
+                </button>
+                <button class="menu-option" id="importBtn">
+                    📥 Importar Lista
+                </button>
+                <button class="menu-option" id="resetDataBtn">
+                    🗑️ Borrar Todo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Agregar/Editar Categoría -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="categoryModalTitle">➕ Nueva Categoría</h2>
+                <button class="modal-close" data-modal="categoryModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="categoryEmoji">Emoji:</label>
+                    <input type="text" id="categoryEmoji" maxlength="2" placeholder="✈️">
+                </div>
+                <div class="form-group">
+                    <label for="categoryName">Nombre:</label>
+                    <input type="text" id="categoryName" placeholder="Ej: Ropa">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" data-modal="categoryModal">Cancelar</button>
+                    <button class="btn-primary" id="saveCategoryBtn">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Agregar/Editar Item -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="itemModalTitle">➕ Nuevo Item</h2>
+                <button class="modal-close" data-modal="itemModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="itemName">Nombre del item:</label>
+                    <input type="text" id="itemName" placeholder="Ej: Pasaporte">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" data-modal="itemModal">Cancelar</button>
+                    <button class="btn-primary" id="saveItemBtn">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input oculto para importar -->
+    <input type="file" id="importFileInput" accept=".json" style="display: none;">
+
+    <script src="app.js"></script>
+</body>
+</html>
