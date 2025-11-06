@@ -13,30 +13,29 @@ const defaultList = [
     'Jogger deportivo', 'Medias deportivas', 'Remera dry-fit',
     'Rompeviento', 'Short deportivo', 'Toalla de gym'
   ]},
-  { emoji: '👟', name: 'Calzado', items: [
-    'Crocs / Ojotas', 'Zapatillas / Deportivas', 'Zapatos'
-  ]},
+    { emoji: '👟', name: 'Calzado', items: [
+        'Alpargatas', 'Crocs / Ojotas', 'Zapatillas / Deportivas', 'Zapatos'
+    ]},
   { emoji: '🩲', name: 'Ropa Interior', items: ['Calzoncillos', 'Medias / Medias zapatos'] },
-  { emoji: '🎩', name: 'Accesorios', items: [
-    'Almohada de viaje', 'Antifaz para dormir', 'Bolsa para ropa sucia',
-    'Botella de agua reutilizable', 'Cinturón', 'Corbata',
-    'Gorra', 'Lentes de sol', 'Paraguas', 'Reloj'
-  ]},
-  { emoji: '🧴', name: 'Higiene Personal', items: [
-    'Afeitadora', 'Bolsas', 'Cepillo de dientes', 'Cortauñas', 'Cremas',
-    'Dentífrico', 'Desodorante', 'Espuma de afeitar', 'Hilo dental',
-    'Hisopos', 'Jabón', 'Ortodoncias', 'Papel higiénico', 'Peine',
-    'Perfume', 'Protector Solar', 'Rodillo quita pelusa', 'Shampoo', 'Toalla'
-  ]},
+    { emoji: '🎩', name: 'Accesorios', items: [
+        'Almohada de viaje', 'Antifaz para dormir', 'Botella de agua reutilizable',
+        'Cinturón', 'Corbata', 'Gorra', 'Lentes de sol', 'Paraguas', 'Reloj'
+    ]},
+    { emoji: '🧴', name: 'Higiene Personal', items: [
+        'Afeitadora', 'Bolsa para ropa sucia', 'Cepillo de dientes', 'Cortauñas', 'Cremas',
+        'Dentífrico', 'Desodorante', 'Espuma de afeitar', 'Hilo dental', 'Hisopos',
+        'Jabón', 'Ortodoncias', 'Papel higiénico', 'Peine', 'Perfume',
+        'Protector Solar', 'Rodillo quita pelusa', 'Shampoo', 'Toalla'
+    ]},
   { emoji: '📄', name: 'Documentos', items: [
     'Copias de documentos (físicas/digitales)', 'Libreta y birome', 'Papeles alojamientos',
     'Pasajes/QR (Tienda León, etc.)', 'Seguro de viaje', 'Victorinox'
   ]},
-  { emoji: '🔌', name: 'Electrónicos', items: [
-    'Adaptador', 'AirTag', 'Auriculares (personal/trabajo)',
-    'Cargador inalámbrico', 'Cargadores (Notebook, celular)', 'Celular',
-    'Notebook', 'Parlante', 'Zapatilla eléctrica'
-  ]},
+    { emoji: '🔌', name: 'Electrónicos', items: [
+        'Adaptador', 'AirTag', 'Auriculares (personal/trabajo)', 'Cargador inalámbrico',
+        'Cargadores (Notebook, celular)', 'Celular',
+        ,'Mouse', 'Notebook', 'Parlante', 'Zapatilla eléctrica'
+    ]},
   { emoji: '💳', name: 'Documentación y Dinero', items: [
     'Carnet de conducir', 'Cédula', 'Credencial de la ofi', 'DNI', 'Efectivo (y USD)',
     'Llaves auto (duplicado)', 'Llaves depto', 'Pasaporte',
