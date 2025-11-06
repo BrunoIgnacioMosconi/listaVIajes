@@ -10,38 +10,37 @@ const defaultList = [
   ]},
   { emoji: '🏃‍♂️', name: 'Ropa deportiva', items: [
     'Buzo/campera técnica', 'Calzas/Mallas de running', 'Gorra/Visera deportiva',
-    'Jogger deportivo', 'Medias deportivas', 'Remera dry-fit',
+    'Jogger deportivo', 'Medias deportivas', 'Remera',
     'Rompeviento', 'Short deportivo', 'Toalla de gym'
   ]},
-  { emoji: '👟', name: 'Calzado', items: [
-    'Crocs / Ojotas', 'Zapatillas / Deportivas', 'Zapatos'
-  ]},
+    { emoji: '👟', name: 'Calzado', items: [
+     'Crocs / Ojotas', 'Zapatillas / Deportivas', 'Zapatos'
+    ]},
   { emoji: '🩲', name: 'Ropa Interior', items: ['Calzoncillos', 'Medias / Medias zapatos'] },
-  { emoji: '🎩', name: 'Accesorios', items: [
-    'Almohada de viaje', 'Antifaz para dormir', 'Bolsa para ropa sucia',
-    'Botella de agua reutilizable', 'Cinturón', 'Corbata',
-    'Gorra', 'Lentes de sol', 'Paraguas', 'Reloj'
-  ]},
-  { emoji: '🧴', name: 'Higiene Personal', items: [
-    'Afeitadora', 'Bolsas', 'Cepillo de dientes', 'Cortauñas', 'Cremas',
-    'Dentífrico', 'Desodorante', 'Espuma de afeitar', 'Hilo dental',
-    'Hisopos', 'Jabón', 'Ortodoncias', 'Papel higiénico', 'Peine',
-    'Perfume', 'Protector Solar', 'Rodillo quita pelusa', 'Shampoo', 'Toalla'
-  ]},
-  { emoji: '📄', name: 'Documentos', items: [
+    { emoji: '🎩', name: 'Accesorios', items: [
+        'Almohada de viaje', 'Antifaz para dormir', 'Botella de agua reutilizable',
+        'Cinturón', 'Corbata', 'Gorra', 'Lentes de sol', 'Paraguas', 'Reloj'
+    ]},
+    { emoji: '🧴', name: 'Higiene Personal', items: [
+        'Afeitadora', 'Algodón', 'Bolsa para ropa sucia', 'Cepillo de dientes', 'Cortauñas', 'Cremas',
+        'Dentífrico', 'Desodorante', 'Espuma de afeitar', 'Hilo dental', 'Hisopos',
+        'Jabón', 'Ortodoncias', 'Papel higiénico', 'Peine', 'Perfume',
+        'Protector Solar', 'Rodillo quita pelusa', 'Shampoo', 'Toalla'
+    ]},
+  { emoji: '📄', name: 'Documentos de viaje', items: [
     'Copias de documentos (físicas/digitales)', 'Libreta y birome', 'Papeles alojamientos',
     'Pasajes/QR (Tienda León, etc.)', 'Seguro de viaje', 'Victorinox'
   ]},
-  { emoji: '🔌', name: 'Electrónicos', items: [
-    'Adaptador', 'AirTag', 'Auriculares (personal/trabajo)',
-    'Cargador inalámbrico', 'Cargadores (Notebook, celular)', 'Celular',
-    'Notebook', 'Parlante', 'Zapatilla eléctrica'
-  ]},
-  { emoji: '💳', name: 'Documentación y Dinero', items: [
+  { emoji: '💳', name: 'Documentos personales y dinero', items: [
     'Carnet de conducir', 'Cédula', 'Credencial de la ofi', 'DNI', 'Efectivo (y USD)',
     'Llaves auto (duplicado)', 'Llaves depto', 'Pasaporte',
     'Tarjeta de Crédito / Débito (de la empresa también)', 'Visa'
   ]},
+    { emoji: '🔌', name: 'Electrónicos', items: [
+        'Adaptador', 'AirTag', 'Auriculares (personal/trabajo)', 'Cargador inalámbrico',
+        'Cargadores (Notebook, celular)', 'Celular',
+        ,'Mouse', 'Notebook', 'Parlante', 'Zapatilla eléctrica'
+    ]},
   { emoji: '💊', name: 'Salud', items: [
     'Antialérgico', 'Curitas', 'Ibuprofeno/Paracetamol', 'Medicamentos', 'OFF'
   ]},
@@ -65,7 +64,7 @@ function init() {
     const saved = localStorage.getItem('list');
     list = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultList));
     checks = JSON.parse(localStorage.getItem('checks') || '{}');
-    
+
     // Initialize missing checks
     list.forEach((cat, ci) => {
         cat.items.forEach((_, ii) => {
@@ -74,10 +73,10 @@ function init() {
         });
     });
     localStorage.setItem('checks', JSON.stringify(checks));
-    
+
     render();
     updateProgress();
-    
+
     // Events
     document.getElementById('menuBtn').onclick = () => openModal('menuModal');
     document.getElementById('addCategoryBtn').onclick = () => { editCat = null; openModal('categoryModal'); };
@@ -88,17 +87,17 @@ function init() {
     document.getElementById('importBtn').onclick = () => document.getElementById('importFileInput').click();
     document.getElementById('resetDataBtn').onclick = resetAll;
     document.getElementById('importFileInput').onchange = e => importData(e.target.files[0]);
-    
+
     document.querySelectorAll('.modal-close, .btn-secondary[data-modal]').forEach(btn => {
         btn.onclick = () => closeModal(btn.dataset.modal || btn.closest('.modal').id);
     });
-    
+
     document.querySelectorAll('.modal').forEach(m => {
         m.addEventListener('click', e => {
             if (e.target === m) closeModal(m.id);
         });
     });
-    
+
     document.getElementById('categoryName').addEventListener('keypress', e => {
         if (e.key === 'Enter') saveCategory();
     });
@@ -162,7 +161,7 @@ function saveCategory() {
     const emoji = document.getElementById('categoryEmoji').value.trim() || '📦';
     const name = document.getElementById('categoryName').value.trim();
     if (!name) return notify('⚠️ El nombre es obligatorio');
-    
+
     if (editCat !== null) {
         list[editCat] = { ...list[editCat], emoji, name };
         notify('✅ Categoría actualizada');
@@ -186,7 +185,7 @@ function deleteCat(ci) {
     if (!confirm(`¿Eliminar "${list[ci].name}"?`)) return;
     list[ci].items.forEach((_, ii) => delete checks[`${ci}-${ii}`]);
     list.splice(ci, 1);
-    
+
     // Reindex checks
     const newChecks = {};
     list.forEach((cat, nci) => {
@@ -204,7 +203,7 @@ function deleteCat(ci) {
 function saveItem() {
     const name = document.getElementById('itemName').value.trim();
     if (!name) return notify('⚠️ El nombre es obligatorio');
-    
+
     if (editItem !== null) {
         list[editCat].items[editItem] = name;
         notify('✅ Item actualizado');
@@ -237,7 +236,7 @@ function deleteItem(ci, ii) {
     if (!confirm(`¿Eliminar "${list[ci].items[ii]}"?`)) return;
     delete checks[`${ci}-${ii}`];
     list[ci].items.splice(ii, 1);
-    
+
     // Reindex
     list[ci].items.forEach((_, ni) => {
         if (ni >= ii) {
@@ -265,7 +264,7 @@ function updateCategoryStats(key) {
     const [ci] = key.split('-').map(Number);
     const category = list[ci];
     if (!category) return;
-    
+
     const done = category.items.filter((_, ii) => checks[`${ci}-${ii}`]).length;
     const statsElement = document.querySelector(`[data-ci="${ci}"] .category-stats`);
     if (statsElement) {
@@ -289,14 +288,14 @@ function resetAll() {
     localStorage.clear();
     list = JSON.parse(JSON.stringify(defaultList));
     checks = {};
-    
+
     // Initialize checks for default list
     list.forEach((cat, ci) => {
         cat.items.forEach((_, ii) => {
             checks[`${ci}-${ii}`] = false;
         });
     });
-    
+
     save();
     closeModal('menuModal');
     notify('✅ Todo borrado');
@@ -352,7 +351,7 @@ function notify(msg) {
     // Remove previous notifications
     const existingNotifications = document.querySelectorAll('.notification-toast');
     existingNotifications.forEach(notification => notification.remove());
-    
+
     const n = document.createElement('div');
     n.className = 'notification-toast';
     n.innerHTML = `
@@ -360,9 +359,9 @@ function notify(msg) {
         <button onclick="this.parentElement.remove()" style="margin-left:0.5rem;background:none;border:none;cursor:pointer;color:inherit;font-size:1.2rem;padding:0">✕</button>
     `;
     n.style.cssText = 'position:fixed;top:6rem;left:50%;transform:translateX(-50%);background:white;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 10px 15px rgba(0,0,0,0.1);z-index:3000;font-weight:500;display:flex;align-items:center;max-width:90vw';
-    
+
     document.body.appendChild(n);
-    
+
     // Auto-remove after 3 seconds
     setTimeout(() => {
         if (n && n.parentElement) {
@@ -379,26 +378,26 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js')
         .then(registration => {
             console.log('SW registered successfully');
-            
+
             // Clear any previous interval to avoid duplicates
             if (updateCheckInterval) {
                 clearInterval(updateCheckInterval);
             }
-            
+
             // Check for updates every hour
             updateCheckInterval = setInterval(() => {
                 console.log('🔍 Checking for updates...');
                 registration.update();
             }, 600000); // 1 hour
-            
+
             // Listen for when an update is found
             registration.addEventListener('updatefound', () => {
                 const newWorker = registration.installing;
                 console.log('New version found, installing...');
-                
+
                 newWorker.addEventListener('statechange', () => {
                     console.log('New SW state:', newWorker.state);
-                    
+
                     if (newWorker.state === 'installed') {
                         if (navigator.serviceWorker.controller) {
                             // New version available, show notification
@@ -411,7 +410,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
                     }
                 });
             });
-            
+
             // Check if there's already a SW waiting
             if (registration.waiting) {
                 console.log('SW already waiting');
@@ -427,7 +426,7 @@ function showUpdateNotification() {
     // Remove previous notification if exists
     const existing = document.querySelector('.update-notification');
     if (existing) existing.remove();
-    
+
     const updateDiv = document.createElement('div');
     updateDiv.className = 'update-notification';
     updateDiv.innerHTML = `
@@ -438,20 +437,20 @@ function showUpdateNotification() {
         </div>
     `;
     document.body.appendChild(updateDiv);
-    
+
     document.getElementById('updateNowBtn').addEventListener('click', updateApp);
     document.getElementById('updateLaterBtn').addEventListener('click', () => updateDiv.remove());
 }
 
 function updateApp() {
     console.log('Updating app...');
-    
+
     // Remove update bar
     const updateNotif = document.querySelector('.update-notification');
     if (updateNotif) {
         updateNotif.remove();
     }
-    
+
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistration().then(registration => {
             if (registration && registration.waiting) {
@@ -463,7 +462,7 @@ function updateApp() {
                         window.location.reload();
                     }
                 });
-                
+
                 // Send message to waiting SW
                 registration.waiting.postMessage({ type: 'SKIP_WAITING' });
             } else {
@@ -483,13 +482,13 @@ window.addEventListener('beforeinstallprompt', e => {
     console.log('beforeinstallprompt event fired');
     e.preventDefault();
     deferredPrompt = e;
-    
+
     // Show install button
     const installBtn = document.getElementById('installBtn');
     if (installBtn) {
         installBtn.style.display = 'block';
     }
-    
+
     // Optional: show notification about install possibility
     if (!installPromptShown) {
         notify('📲 ¡Puedes instalar esta app!');
@@ -515,18 +514,18 @@ document.getElementById('installBtn').onclick = async () => {
         notify('⚠️ No se puede instalar en este momento');
         return;
     }
-    
+
     try {
         deferredPrompt.prompt();
         const choiceResult = await deferredPrompt.userChoice;
         console.log('User choice:', choiceResult.outcome);
-        
+
         if (choiceResult.outcome === 'accepted') {
             notify('📲 Instalando app...');
         } else {
             notify('ℹ️ Instalación cancelada');
         }
-        
+
         deferredPrompt = null;
         document.getElementById('installBtn').style.display = 'none';
     } catch (error) {
@@ -550,7 +549,7 @@ window.addEventListener('load', () => {
     } else {
         console.log('App running in browser (not installed)');
     }
-    
+
     // Check PWA installation support
     if ('serviceWorker' in navigator && 'onbeforeinstallprompt' in window) {
         console.log('Browser supports PWA installation');
