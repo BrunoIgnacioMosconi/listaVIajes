@@ -39,7 +39,7 @@ const defaultList = [
     { emoji: '🔌', name: 'Electrónicos', items: [
         'Adaptador', 'AirTag', 'Auriculares (personal/trabajo)', 'Cargador inalámbrico',
         'Cargadores (Notebook, celular)', 'Celular',
-        ,'Mouse', 'Notebook', 'Parlante', 'Zapatilla eléctrica'
+        'Mouse', 'Notebook', 'Parlante', 'Zapatilla eléctrica'
     ]},
   { emoji: '💊', name: 'Salud', items: [
     'Antialérgico', 'Curitas', 'Ibuprofeno/Paracetamol', 'Medicamentos', 'OFF'
@@ -58,12 +58,167 @@ let list = [];
 let checks = {};
 let editCat = null;
 let editItem = null;
+let currentListId = 'default'; // ID de la lista actual
+
+function ensureCategoryNotes(targetList = list) {
+    if (!Array.isArray(targetList)) return;
+    targetList.forEach(cat => {
+        if (!cat || typeof cat !== 'object') return;
+        if (typeof cat.note !== 'string') cat.note = '';
+    });
+}
+
+// List management functions
+function getSavedLists() {
+    const saved = localStorage.getItem('savedLists');
+    return saved ? JSON.parse(saved) : {};
+}
+
+function saveCurrentListAs() {
+    const listName = document.getElementById('newListName').value.trim();
+    if (!listName) return notify('⚠️ Ingresá un nombre para la lista');
+    
+    const savedLists = getSavedLists();
+    const listId = Date.now().toString();
+    
+    savedLists[listId] = {
+        name: listName,
+        list: JSON.parse(JSON.stringify(list)),
+        checks: JSON.parse(JSON.stringify(checks)),
+        createdAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem('savedLists', JSON.stringify(savedLists));
+    document.getElementById('newListName').value = '';
+    renderSavedLists();
+    notify(`✅ Lista "${listName}" guardada`);
+}
+
+function loadList(listId) {
+    if (listId === 'default') {
+        currentListId = 'default';
+        list = JSON.parse(JSON.stringify(defaultList));
+        checks = {};
+        ensureCategoryNotes();
+        list.forEach((cat, ci) => {
+            cat.items.forEach((_, ii) => {
+                checks[`${ci}-${ii}`] = false;
+            });
+        });
+    } else {
+        const savedLists = getSavedLists();
+        if (savedLists[listId]) {
+            currentListId = listId;
+            list = JSON.parse(JSON.stringify(savedLists[listId].list));
+            checks = JSON.parse(JSON.stringify(savedLists[listId].checks));
+            ensureCategoryNotes();
+        }
+    }
+    
+    save();
+    updateCurrentListName();
+    closeModal('listsModal');
+    notify(`✅ Lista cargada`);
+}
+
+function deleteList(listId) {
+    const savedLists = getSavedLists();
+    if (!savedLists[listId]) return;
+    
+    const listName = savedLists[listId].name;
+    if (!confirm(`¿Eliminar la lista "${listName}"?`)) return;
+    
+    delete savedLists[listId];
+    localStorage.setItem('savedLists', JSON.stringify(savedLists));
+    
+    if (currentListId === listId) {
+        loadList('default');
+    }
+    
+    renderSavedLists();
+    notify(`✅ Lista "${listName}" eliminada`);
+}
+
+function renderSavedLists() {
+    const container = document.getElementById('savedListsContainer');
+    const savedLists = getSavedLists();
+    const listIds = Object.keys(savedLists);
+    
+    // Always show default list at the top
+    const isDefaultActive = currentListId === 'default';
+    let html = `
+        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: ${isDefaultActive ? '#dbeafe' : '#f8fafc'}; border-radius: 8px; margin-bottom: 0.5rem; border: 2px solid #e2e8f0;">
+            <div style="flex: 1;">
+                <div style="font-weight: 600; color: #1e293b;">📋 Lista predeterminada</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Lista original con todos los items</div>
+            </div>
+            ${!isDefaultActive ? `<button class="btn-primary" onclick="loadList('default')" style="padding: 0.4rem 0.8rem; font-size: 0.875rem;">Cargar</button>` : '<span style="color: #2563eb; font-weight: 600; font-size: 0.875rem;">Activa</span>'}
+        </div>
+    `;
+    
+    if (listIds.length === 0) {
+        html += '<p style="color: #94a3b8; text-align: center; padding: 1rem; margin-top: 0.5rem;">No hay listas personalizadas guardadas</p>';
+    } else {
+        html += '<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e2e8f0;"><div style="font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.5rem;">Listas personalizadas:</div>';
+        html += listIds.map(listId => {
+            const listData = savedLists[listId];
+            const isActive = currentListId === listId;
+            return `
+                <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: ${isActive ? '#dbeafe' : '#f8fafc'}; border-radius: 8px; margin-bottom: 0.5rem;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1e293b;">${listData.name}</div>
+                        <div style="font-size: 0.75rem; color: #64748b;">${new Date(listData.createdAt).toLocaleDateString()}</div>
+                    </div>
+                    ${!isActive ? `<button class="btn-primary" onclick="loadList('${listId}')" style="padding: 0.4rem 0.8rem; font-size: 0.875rem;">Cargar</button>` : '<span style="color: #2563eb; font-weight: 600; font-size: 0.875rem;">Activa</span>'}
+                    <button class="btn-secondary" onclick="deleteList('${listId}')" style="padding: 0.4rem 0.8rem; font-size: 0.875rem;">🗑️</button>
+                </div>
+            `;
+        }).join('');
+        html += '</div>';
+    }
+    
+    container.innerHTML = html;
+}
+
+function updateCurrentListName() {
+    const nameElement = document.getElementById('currentListName');
+    if (!nameElement) return;
+    
+    if (currentListId === 'default') {
+        nameElement.textContent = 'Lista predeterminada';
+    } else {
+        const savedLists = getSavedLists();
+        if (savedLists[currentListId]) {
+            nameElement.textContent = savedLists[currentListId].name;
+        }
+    }
+}
 
 // Init
 function init() {
-    const saved = localStorage.getItem('list');
-    list = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultList));
-    checks = JSON.parse(localStorage.getItem('checks') || '{}');
+    // Load current list context
+    const savedCurrentId = localStorage.getItem('currentListId');
+    if (savedCurrentId && savedCurrentId !== 'default') {
+        const savedLists = getSavedLists();
+        if (savedLists[savedCurrentId]) {
+            currentListId = savedCurrentId;
+            list = JSON.parse(JSON.stringify(savedLists[savedCurrentId].list));
+            checks = JSON.parse(JSON.stringify(savedLists[savedCurrentId].checks));
+        } else {
+            // If list doesn't exist anymore, load default
+            currentListId = 'default';
+            list = JSON.parse(JSON.stringify(defaultList));
+            checks = {};
+        }
+    } else {
+        // Load default list
+        currentListId = 'default';
+        const saved = localStorage.getItem('list');
+        list = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultList));
+        checks = JSON.parse(localStorage.getItem('checks') || '{}');
+    }
+
+    ensureCategoryNotes();
 
     // Initialize missing checks
     list.forEach((cat, ci) => {
@@ -72,14 +227,21 @@ function init() {
             if (checks[key] === undefined) checks[key] = false;
         });
     });
-    localStorage.setItem('checks', JSON.stringify(checks));
-
-    render();
-    updateProgress();
+    
+    save();
+    updateCurrentListName();
 
     // Events
     document.getElementById('menuBtn').onclick = () => openModal('menuModal');
-    document.getElementById('addCategoryBtn').onclick = () => { editCat = null; openModal('categoryModal'); };
+    document.getElementById('currentListName').ondblclick = toggleAllCategories;
+    document.getElementById('addCategoryBtn').onclick = () => {
+        editCat = null;
+        document.getElementById('categoryModalTitle').textContent = '➕ Nueva Categoría';
+        document.getElementById('categoryEmoji').value = '';
+        document.getElementById('categoryName').value = '';
+        document.getElementById('categoryNote').value = '';
+        openModal('categoryModal');
+    };
     document.getElementById('saveCategoryBtn').onclick = saveCategory;
     document.getElementById('saveItemBtn').onclick = saveItem;
     document.getElementById('resetAllBtn').onclick = resetChecks;
@@ -87,6 +249,12 @@ function init() {
     document.getElementById('importBtn').onclick = () => document.getElementById('importFileInput').click();
     document.getElementById('resetDataBtn').onclick = resetAll;
     document.getElementById('importFileInput').onchange = e => importData(e.target.files[0]);
+    document.getElementById('manageListsBtn').onclick = () => {
+        renderSavedLists();
+        closeModal('menuModal');
+        openModal('listsModal');
+    };
+    document.getElementById('saveNewListBtn').onclick = saveCurrentListAs;
 
     document.querySelectorAll('.modal-close, .btn-secondary[data-modal]').forEach(btn => {
         btn.onclick = () => closeModal(btn.dataset.modal || btn.closest('.modal').id);
@@ -104,6 +272,29 @@ function init() {
     document.getElementById('itemName').addEventListener('keypress', e => {
         if (e.key === 'Enter') saveItem();
     });
+    document.getElementById('newListName').addEventListener('keypress', e => {
+        if (e.key === 'Enter') saveCurrentListAs();
+    });
+}
+
+// Toggle all categories
+function toggleAllCategories() {
+    const categories = document.querySelectorAll('.category');
+    if (categories.length === 0) return;
+    
+    // Check if any category is expanded
+    const anyExpanded = Array.from(categories).some(cat => !cat.classList.contains('collapsed'));
+    
+    // If any is expanded, collapse all. Otherwise, expand all
+    categories.forEach(cat => {
+        if (anyExpanded) {
+            cat.classList.add('collapsed');
+        } else {
+            cat.classList.remove('collapsed');
+        }
+    });
+    
+    notify(anyExpanded ? '📦 Todas minimizadas' : '📂 Todas expandidas');
 }
 
 // Render
@@ -128,6 +319,7 @@ function render() {
                     </div>
                     <div class="category-stats">${done}/${cat.items.length}</div>
                 </div>
+                ${cat.note ? `<div class="category-note">${cat.note}</div>` : ''}
                 <div class="items-list">
                     ${cat.items.map((item, ii) => {
                         const key = `${ci}-${ii}`;
@@ -160,13 +352,14 @@ function updateProgress() {
 function saveCategory() {
     const emoji = document.getElementById('categoryEmoji').value.trim() || '📦';
     const name = document.getElementById('categoryName').value.trim();
+    const note = document.getElementById('categoryNote').value.trim();
     if (!name) return notify('⚠️ El nombre es obligatorio');
 
     if (editCat !== null) {
-        list[editCat] = { ...list[editCat], emoji, name };
+        list[editCat] = { ...list[editCat], emoji, name, note };
         notify('✅ Categoría actualizada');
     } else {
-        list.push({ emoji, name, items: [] });
+        list.push({ emoji, name, note, items: [] });
         notify('✅ Categoría agregada');
     }
     save();
@@ -178,6 +371,7 @@ function editCategoryModal(ci) {
     document.getElementById('categoryModalTitle').textContent = '✏️ Editar Categoría';
     document.getElementById('categoryEmoji').value = list[ci].emoji;
     document.getElementById('categoryName').value = list[ci].name;
+    document.getElementById('categoryNote').value = list[ci].note || '';
     openModal('categoryModal');
 }
 
@@ -255,8 +449,7 @@ function deleteItem(ci, ii) {
 // Checks
 function toggleCheck(key, checked) {
     checks[key] = checked;
-    localStorage.setItem('checks', JSON.stringify(checks));
-    updateProgress();
+    save(); // Use save() to handle proper context
     updateCategoryStats(key);
 }
 
@@ -275,9 +468,7 @@ function updateCategoryStats(key) {
 function resetChecks() {
     if (!confirm('¿Desmarcar todos?')) return;
     Object.keys(checks).forEach(k => checks[k] = false);
-    localStorage.setItem('checks', JSON.stringify(checks));
-    render();
-    updateProgress();
+    save(); // Use save() to handle proper context
     closeModal('menuModal');
     notify('✅ Checks reseteados');
 }
@@ -288,6 +479,7 @@ function resetAll() {
     localStorage.clear();
     list = JSON.parse(JSON.stringify(defaultList));
     checks = {};
+    ensureCategoryNotes();
 
     // Initialize checks for default list
     list.forEach((cat, ci) => {
@@ -303,13 +495,19 @@ function resetAll() {
 
 // Export/Import
 function exportData() {
-    const data = { list, checks, date: new Date().toISOString() };
+    const data = {
+        currentList: { list, checks },
+        currentListId: currentListId,
+        savedLists: getSavedLists(),
+        defaultListData: { list: localStorage.getItem('list'), checks: localStorage.getItem('checks') },
+        exportDate: new Date().toISOString()
+    };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `checklist-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `checklist-todas-listas-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
-    notify('✅ Lista exportada');
+    notify('✅ Todas las listas exportadas');
 }
 
 function importData(file) {
@@ -318,12 +516,42 @@ function importData(file) {
     reader.onload = e => {
         try {
             const data = JSON.parse(e.target.result);
-            if (!data.list) return notify('❌ Archivo inválido');
-            list = data.list;
-            checks = data.checks || {};
-            save();
-            closeModal('menuModal');
-            notify('✅ Lista importada');
+            
+            // Check if it's the new format (with all lists) or old format (single list)
+            if (data.savedLists !== undefined) {
+                // New format - import all lists
+                if (!confirm('¿Importar todas las listas? Esto reemplazará las listas actuales.')) return;
+                
+                // Import saved lists
+                localStorage.setItem('savedLists', JSON.stringify(data.savedLists));
+                
+                // Import default list data if exists
+                if (data.defaultListData && data.defaultListData.list) {
+                    localStorage.setItem('list', data.defaultListData.list);
+                    localStorage.setItem('checks', data.defaultListData.checks || '{}');
+                }
+                
+                // Load the list that was active when exported
+                if (data.currentListId) {
+                    loadList(data.currentListId);
+                } else {
+                    loadList('default');
+                }
+                
+                closeModal('menuModal');
+                notify('✅ Todas las listas importadas');
+            } else if (data.list) {
+                // Old format - import as current list only
+                if (!confirm('¿Importar esta lista? Se cargará en la lista actual.')) return;
+                list = data.list;
+                checks = data.checks || {};
+                ensureCategoryNotes();
+                save();
+                closeModal('menuModal');
+                notify('✅ Lista importada');
+            } else {
+                notify('❌ Archivo inválido');
+            }
         } catch {
             notify('❌ Error al leer archivo');
         }
@@ -333,8 +561,19 @@ function importData(file) {
 
 // Utils
 function save() {
-    localStorage.setItem('list', JSON.stringify(list));
-    localStorage.setItem('checks', JSON.stringify(checks));
+    // Save to current list context
+    if (currentListId === 'default') {
+        localStorage.setItem('list', JSON.stringify(list));
+        localStorage.setItem('checks', JSON.stringify(checks));
+    } else {
+        const savedLists = getSavedLists();
+        if (savedLists[currentListId]) {
+            savedLists[currentListId].list = JSON.parse(JSON.stringify(list));
+            savedLists[currentListId].checks = JSON.parse(JSON.stringify(checks));
+            localStorage.setItem('savedLists', JSON.stringify(savedLists));
+        }
+    }
+    localStorage.setItem('currentListId', currentListId);
     render();
     updateProgress();
 }

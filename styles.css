@@ -110,10 +110,24 @@ header h1 {
     margin-bottom: 1rem;
     box-shadow: var(--shadow);
     transition: all 0.3s;
+    border: 1px solid var(--border);
 }
 
 .category:hover {
     box-shadow: var(--shadow-lg);
+    background: #f5f7ff;
+    border-color: rgba(37, 99, 235, 0.35);
+    transform: translateY(-2px);
+}
+
+.category-note {
+    margin-top: 0.5rem;
+    padding: 0.75rem 0.9rem;
+    background: #f0f7ff;
+    border-left: 3px solid #1d4ed8;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #1f2937;
 }
 
 .category-header {
